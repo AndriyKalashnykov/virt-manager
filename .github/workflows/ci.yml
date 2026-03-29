@@ -1,6 +1,16 @@
 name: Test on fedora:latest
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   # Test on fedora:latest with stock distro packages
@@ -21,7 +31,7 @@ jobs:
           glibc-langpack-en \
           python3-pytest python3-pytest-cov
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
     - name: Install RPM build deps
       run: |
@@ -51,6 +61,6 @@ jobs:
         pytest --cov --cov-report=xml
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
